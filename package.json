@@ -1,0 +1,21 @@
+{
+  "name": "grapes",
+  "version": "1.0.0",
+  "description": "<p align=\"center\"> \r   <img src=\"https://user-images.githubusercontent.com/72753578/186304955-8d3da1bc-c16c-4293-9588-c98c3bb129c3.png\" title=\"grapes\" alt=\"grapes\"/>\r </p>",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cargo watch -x \"run --bin grapes\"",
+    "fmt": "rustfmt ./src/main.rs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AhmedIbrahim336/grapes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AhmedIbrahim336/grapes/issues"
+  },
+  "homepage": "https://github.com/AhmedIbrahim336/grapes#readme"
+}

@@ -1,8 +1,11 @@
-use std::env;
-use std::io::{BufRead, BufReader, Write};
 #[allow(unused, dead_code)]
+mod request;
+use std::env;
+use std::io::{BufRead, BufReader, Write, Read};
 use std::net::{SocketAddr, TcpListener};
 use std::str::FromStr;
+
+const BUF_SIZE: usize = 512;
 
 fn main() -> Result<(), std::io::Error> {
     let addr = env::args()
@@ -28,18 +31,27 @@ impl Server {
     fn run(&self) -> Result<(), std::io::Error> {
         let listener = TcpListener::bind(self.addr)?;
 
-        while let Ok((mut socket, addr)) = listener.accept() {
+        while let Ok((mut stream, addr)) = listener.accept() {
             println!("[conn] {}", addr);
-            let buf_reader = BufReader::new(&socket);
-            let http_request = buf_reader
-                .lines()
-                .map(|result| result.unwrap())
-                .take_while(|l| !l.is_empty())
-                .collect::<Vec<_>>();
-            println!("[request] {:#?}", http_request);
+            let mut buf_reader = BufReader::new(&stream);
+            
+            let mut  req_buf: Vec<u8> = vec![];
+            let mut buf;
+            loop {
+                buf = [0; BUF_SIZE];
+                match buf_reader.read(&mut buf) {
+                    Ok(n) => {
+                        req_buf.extend(&buf[..n]);
+                        if n < BUF_SIZE {break;}
+                    },
+                    Err(_) => break
+                }
+            }
 
-            let res = "HTTP/1.1 200 OK\r\n\r\n";
-            socket.write_all(res.as_bytes())?;
+
+            // Todo: Send 400 for invalid utf-8 request
+            let request = String::from_utf8(req_buf).unwrap();
+            println!("{}", request);
         }
 
         Ok(())
