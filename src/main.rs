@@ -5,6 +5,8 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{SocketAddr, TcpListener};
 use std::str::FromStr;
 
+use crate::request::Request;
+
 const BUF_SIZE: usize = 512;
 
 fn main() -> Result<(), std::io::Error> {
@@ -50,29 +52,10 @@ impl Server {
                 }
             }
 
-            // Todo: Send 400 for invalid utf-8 request
-            let request = String::from_utf8(req_buf).unwrap();
-            println!("{}", request);
+            // Todo: Send 400 for invalid request
+            Request::new(req_buf).unwrap();
         }
 
         Ok(())
     }
-}
-
-struct Request {
-    path: String,
-    query_string: Option<String>,
-    method: Method,
-}
-
-enum Method {
-    GET,
-    POST,
-    PUT,
-    DELETE,
-    HEAD,
-    CONNECT,
-    OPTIONS,
-    TRACE,
-    PATCH,
 }
