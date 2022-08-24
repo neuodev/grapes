@@ -1,7 +1,9 @@
 #[allow(unused, dead_code)]
 mod request;
+mod response;
+
 use std::env;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{ BufReader, Read};
 use std::net::{SocketAddr, TcpListener};
 use std::str::FromStr;
 
@@ -33,7 +35,7 @@ impl Server {
     fn run(&self) -> Result<(), std::io::Error> {
         let listener = TcpListener::bind(self.addr)?;
 
-        while let Ok((mut stream, addr)) = listener.accept() {
+        while let Ok((stream, addr)) = listener.accept() {
             println!("[conn] {}", addr);
             let mut buf_reader = BufReader::new(&stream);
 
@@ -53,7 +55,9 @@ impl Server {
             }
 
             // Todo: Send 400 for invalid request
-            Request::new(req_buf).unwrap();
+           let req = Request::new(req_buf).unwrap();
+           dbg!(&req);
+            // Serve static files
         }
 
         Ok(())

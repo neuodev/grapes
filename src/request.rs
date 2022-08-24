@@ -5,6 +5,7 @@ use std::{
 
 use regex::Regex;
 
+#[derive(Debug)]
 pub struct Request {
     method: Method,
     path: String,
