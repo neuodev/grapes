@@ -5,7 +5,6 @@ pub struct Request {
     path: String,
     query_string: Option<String>,
     headers: HashMap<String, String>,
-
 }
 
 enum Method {

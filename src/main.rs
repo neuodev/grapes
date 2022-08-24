@@ -1,7 +1,7 @@
 #[allow(unused, dead_code)]
 mod request;
 use std::env;
-use std::io::{BufRead, BufReader, Write, Read};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{SocketAddr, TcpListener};
 use std::str::FromStr;
 
@@ -34,20 +34,21 @@ impl Server {
         while let Ok((mut stream, addr)) = listener.accept() {
             println!("[conn] {}", addr);
             let mut buf_reader = BufReader::new(&stream);
-            
-            let mut  req_buf: Vec<u8> = vec![];
+
+            let mut req_buf: Vec<u8> = vec![];
             let mut buf;
             loop {
                 buf = [0; BUF_SIZE];
                 match buf_reader.read(&mut buf) {
                     Ok(n) => {
                         req_buf.extend(&buf[..n]);
-                        if n < BUF_SIZE {break;}
-                    },
-                    Err(_) => break
+                        if n < BUF_SIZE {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
                 }
             }
-
 
             // Todo: Send 400 for invalid utf-8 request
             let request = String::from_utf8(req_buf).unwrap();
