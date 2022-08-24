@@ -1,4 +1,4 @@
-use std::{collections::HashMap, net::TcpStream};
+use std::{collections::HashMap, io::Write, net::TcpStream};
 
 pub struct Response {
     status_code: StatusCode,
@@ -41,10 +41,29 @@ impl Response {
         self
     }
 
-    pub fn send(&mut self, socket: TcpStream) {}
+    pub fn send(&mut self, socket: &mut TcpStream) -> Result<(), std::io::Error> {
+        let mut res = String::from(format!(
+            "HTTP/1.1 {} {}\r\n",
+            self.status_code as u16,
+            self.status_code.as_str()
+        ));
+
+        self.headers
+            .iter()
+            .for_each(|(key, value)| res.push_str(format!("{}: {}", key, value).as_str()));
+
+        if let Some(body) = &self.body {
+            res.push_str(format!("\r\n\r\n{}", body).as_str())
+        }
+
+        socket.write_all(res.as_bytes())?;
+
+        Ok(())
+    }
 }
 
 /// For the full list check https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+#[derive(Debug, Clone, Copy)]
 pub enum StatusCode {
     // Successful responses
     Ok = 200,
@@ -62,4 +81,15 @@ pub enum StatusCode {
     BadGateway = 502,
     Unavailable = 503,
     HttpVersionNotSupported = 505,
+}
+
+impl StatusCode {
+    fn as_str(&self) -> &'static str {
+        match self {
+            Self::Accepted => "accepted",
+            Self::Ok => "OK",
+            Self::NotFound => "Not Found",
+            _ => todo!(),
+        }
+    }
 }

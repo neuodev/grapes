@@ -31,9 +31,9 @@ impl Request {
 
         let method = Method::new(&caps["method"])?;
         let path = caps["path"].to_string();
-        let version = &caps["version"];
+        let version = caps["version"].trim();
 
-        if version.to_uppercase() != "HTTP/1.1" {
+        if version != "HTTP/1.1" {
             return Err("Only HTTP/1.1 is supported");
         }
 

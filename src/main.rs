@@ -36,7 +36,7 @@ impl Server {
     fn run(&self) -> Result<(), std::io::Error> {
         let listener = TcpListener::bind(self.addr)?;
 
-        while let Ok((stream, addr)) = listener.accept() {
+        while let Ok((mut stream, addr)) = listener.accept() {
             println!("[conn] {}", addr);
             let mut buf_reader = BufReader::new(&stream);
 
@@ -62,7 +62,8 @@ impl Server {
             let mut res = Response::new();
             res.status_code(StatusCode::Ok)
                 .header("Content-Type", "text/html")
-                .body("<h1>Hello, World</h1>");
+                .body("<h1>Hello, World</h1>")
+                .send(&mut stream)?;
         }
 
         Ok(())
