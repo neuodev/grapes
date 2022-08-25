@@ -7,11 +7,11 @@ use regex::Regex;
 
 #[derive(Debug)]
 pub struct Request {
-    method: Method,
-    path: String,
-    query: HashMap<String, String>,
-    headers: HashMap<String, String>,
-    body: Option<String>,
+    pub method: Method,
+    pub path: String,
+    pub query: HashMap<String, String>,
+    pub headers: HashMap<String, String>,
+    pub body: Option<String>,
 }
 
 impl Request {
@@ -20,7 +20,8 @@ impl Request {
             Ok(s) => s,
             Err(_) => return Err("Invalid UTF-8"),
         };
-        println!("{:#?}", request);
+        println!("[req] {}", request);
+
         let re_info = Regex::new("(?P<method>.+) (?P<path>.*) (?P<version>.+)").unwrap();
         let re_headers = Regex::new("(?P<key>[^:\n]+): (?P<value>.+)").unwrap();
 
@@ -32,6 +33,8 @@ impl Request {
         let method = Method::new(&caps["method"])?;
         let path = caps["path"].to_string();
         let version = caps["version"].trim();
+
+        println!("{:?} {}", method, path);
 
         if version != "HTTP/1.1" {
             return Err("Only HTTP/1.1 is supported");
@@ -72,7 +75,7 @@ impl Request {
 }
 
 #[derive(Debug)]
-enum Method {
+pub enum Method {
     GET,
     POST,
     PUT,

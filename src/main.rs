@@ -61,8 +61,7 @@ impl Server {
 
             let mut res = Response::new();
             res.status_code(StatusCode::Ok)
-                .header("Content-Type", "text/html")
-                .serve_file()
+                .serve_file(&req.path)
                 .send(&mut stream)?;
         }
 

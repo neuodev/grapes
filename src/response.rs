@@ -1,19 +1,22 @@
-use std::{collections::HashMap, io::Write, net::TcpStream, fs};
+use std::{collections::HashMap, io::Write, net::TcpStream, fs, path::Path};
 
 use crate::STATIC_DIR;
 
 pub struct Response {
     status_code: StatusCode,
     headers: HashMap<String, String>,
-    body: Option<String>,
+    body: Vec<u8>,
 }
 
 impl Response {
     pub fn new() -> Self {
+        let mut default_headers = HashMap::new();
+        default_headers.insert("Connection".into(), "keep-alive".into());
+        default_headers.insert("Keep-Alive".into(), "timeout=5".into());
         Self {
             status_code: StatusCode::Ok,
-            headers: HashMap::new(),
-            body: None,
+            headers: default_headers,
+            body: vec![],
         }
     }
 
@@ -37,8 +40,8 @@ impl Response {
         self
     }
 
-    pub fn body<T: Into<String>>(&mut self, body: T) -> &mut Self {
-        self.body = Some(body.into());
+    pub fn body(&mut self, body: &str) -> &mut Self {
+        self.body = body.as_bytes().to_vec();
 
         self
     }
@@ -50,22 +53,42 @@ impl Response {
             self.status_code.as_str()
         ));
 
+
         self.headers
             .iter()
             .for_each(|(key, value)| res.push_str(format!("{}: {}", key, value).as_str()));
 
-        if let Some(body) = &self.body {
-            res.push_str(format!("\r\n\r\n{}", body).as_str())
-        }
+        res.push_str("\r\n\r\n");
 
-        socket.write_all(res.as_bytes())?;
+        let mut res = res.as_bytes().to_vec();
+        res.extend(&self.body);
+
+        socket.write_all(&res[..])?;
 
         Ok(())
     }
 
-    pub fn serve_file(&mut self) -> &mut Self {
-        let file = fs::read_to_string(STATIC_DIR).unwrap();
-        self.body = Some(file);
+    pub fn serve_file(&mut self, uri: &str) -> &mut Self {
+
+        let mut file = uri;
+
+        if file == "/" {
+            file = "/index.html"
+        }
+
+        let path = format!("{}/{}", STATIC_DIR, file);
+        let path = Path::new(&path);
+
+        match fs::read(path) {
+            Ok(f) => {
+                self.body = f;
+            },
+            Err(_) => {
+                self.body = format!("<strong>{} not found</strong>", uri).as_bytes().to_vec();
+                self.status_code(StatusCode::NotFound);
+
+            }
+        }
         self
     }
 }
