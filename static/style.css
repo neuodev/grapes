@@ -10,9 +10,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  font-family: "Rubik", sans-serif;
 }
 
 h1 {
-  font-family: "Rubik", sans-serif;
   font-size: 4rem;
+}
+
+button {
+  width: 200px;
+  height: 50px;
+  margin-top: 20px;
+  border: none;
+  font-weight: 500;
+  font-size: larger;
+  cursor: pointer;
 }
