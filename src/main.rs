@@ -11,6 +11,7 @@ use crate::request::Request;
 use response::{Response, StatusCode};
 
 const BUF_SIZE: usize = 512;
+pub const STATIC_DIR: &str = "./static";
 
 fn main() -> Result<(), std::io::Error> {
     let addr = env::args()
@@ -57,12 +58,11 @@ impl Server {
 
             // Todo: Send 400 for invalid request
             let req = Request::new(req_buf).unwrap();
-            dbg!(&req);
 
             let mut res = Response::new();
             res.status_code(StatusCode::Ok)
                 .header("Content-Type", "text/html")
-                .body("<h1>Hello, World</h1>")
+                .serve_file()
                 .send(&mut stream)?;
         }
 

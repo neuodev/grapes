@@ -1,4 +1,6 @@
-use std::{collections::HashMap, io::Write, net::TcpStream};
+use std::{collections::HashMap, io::Write, net::TcpStream, fs};
+
+use crate::STATIC_DIR;
 
 pub struct Response {
     status_code: StatusCode,
@@ -59,6 +61,12 @@ impl Response {
         socket.write_all(res.as_bytes())?;
 
         Ok(())
+    }
+
+    pub fn serve_file(&mut self) -> &mut Self {
+        let file = fs::read_to_string(STATIC_DIR).unwrap();
+        self.body = Some(file);
+        self
     }
 }
 
